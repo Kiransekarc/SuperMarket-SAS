@@ -16,7 +16,7 @@ const TransactionsHistory = ({ products }) => {
             try {
                 const token = getAuthItem("token");
                 const config = { headers: { Authorization: `Bearer ${token}` } };
-                const response = await axios.get("http://localhost:5000/api/sales", config);
+                const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/sales`, config);
                 setSales(response.data);
             } catch (err) {
                 console.error("Error fetching sales history:", err);

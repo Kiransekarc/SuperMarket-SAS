@@ -116,8 +116,8 @@ const DashboardOverview = ({ products, analytics }) => {
       console.log("Fetching dashboard data from MongoDB...");
 
       const [metricsRes, salesRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/analytics/dashboard-metrics", config),
-        axios.get("http://localhost:5000/api/sales", config)
+        axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/analytics/dashboard-metrics`, config),
+        axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/sales`, config)
       ]);
 
       console.log("Dashboard data received:", metricsRes.data);
@@ -155,7 +155,7 @@ const DashboardOverview = ({ products, analytics }) => {
       };
 
       const days = timeFilter === '7 Days' ? 7 : timeFilter === '14 Days' ? 14 : 30;
-      const weeklyRes = await axios.get(`http://localhost:5000/api/analytics/weekly-sales?days=${days}`, config);
+      const weeklyRes = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/analytics/weekly-sales?days=${days}`, config);
 
       // Process weekly data for chart
       let labels = weeklyRes.data.map(item => {

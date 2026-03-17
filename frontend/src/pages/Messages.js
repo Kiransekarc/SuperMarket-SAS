@@ -107,7 +107,7 @@ const Messages = () => {
         if (window.confirm(`Are you sure you want to clear all messages with ${activeUser.name}?`)) {
             try {
                 const token = getAuthItem("token");
-                await fetch(`http://localhost:5000/api/messages/clear/${activeUser._id}`, {
+                await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/messages/clear/${activeUser._id}`, {
                     method: 'DELETE',
                     headers: {
                         'Authorization': `Bearer ${token}`

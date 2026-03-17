@@ -300,7 +300,7 @@ const Products = ({ products, onUpdate }) => {
 
       await Promise.all(
         demoProducts.map((p) =>
-          axios.post("http://localhost:5000/api/products", p, {
+          axios.post(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/products`, p, {
             headers: { Authorization: `Bearer ${token}` },
           })
         )
@@ -324,7 +324,7 @@ const Products = ({ products, onUpdate }) => {
       console.log("Sending product data:", formData);
 
       await axios.post(
-        "http://localhost:5000/api/products",
+        `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/products`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -350,7 +350,7 @@ const Products = ({ products, onUpdate }) => {
     try {
       const token = getAuthItem("token");
       await axios.put(
-        `http://localhost:5000/api/products/${editingProduct._id}`,
+        `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/products/${editingProduct._id}`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -378,7 +378,7 @@ const Products = ({ products, onUpdate }) => {
 
     try {
       const token = getAuthItem("token");
-      const response = await axios.delete(`http://localhost:5000/api/products/${id}`, {
+      const response = await axios.delete(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/products/${id}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
 

@@ -21,7 +21,7 @@ const Signup = () => {
     setLoading(true);
     try {
       const token = getAuthItem("token");
-      const response = await axios.get("http://localhost:5000/api/auth/users", {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/auth/users`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUsers(response.data);
@@ -44,7 +44,7 @@ const Signup = () => {
     try {
       const token = getAuthItem("token");
       await axios.post(
-        "http://localhost:5000/api/auth/signup",
+        `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/auth/signup`,
         formData,
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -62,7 +62,7 @@ const Signup = () => {
     try {
       const token = getAuthItem("token");
       await axios.patch(
-        `http://localhost:5000/api/auth/users/${userId}/status`,
+        `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/auth/users/${userId}/status`,
         { isActive: !currentStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -81,7 +81,7 @@ const Signup = () => {
 
     try {
       const token = getAuthItem("token");
-      await axios.delete(`http://localhost:5000/api/auth/users/${userId}`, {
+      await axios.delete(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/auth/users/${userId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success("User deleted successfully");

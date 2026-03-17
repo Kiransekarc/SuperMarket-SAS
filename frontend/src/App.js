@@ -44,8 +44,8 @@ function AppContent() {
       const config = { headers: { Authorization: `Bearer ${token}` } };
 
       const [productsRes, analyticsRes] = await Promise.all([
-        axios.get("http://localhost:5000/api/products", config),
-        axios.get("http://localhost:5000/api/analytics", config),
+        axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/products`, config),
+        axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/analytics`, config),
       ]);
 
       setProducts(productsRes.data);

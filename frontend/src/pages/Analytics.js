@@ -42,7 +42,7 @@ const Analytics = ({ products, analytics, onUpdate }) => {
     const fetchTopCustomers = async () => {
       try {
         const token = getAuthItem("token");
-        const res = await axios.get("http://localhost:5000/api/customers/top?limit=10", {
+        const res = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/customers/top?limit=10`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         setTopCustomers(res.data);
@@ -57,7 +57,7 @@ const Analytics = ({ products, analytics, onUpdate }) => {
     setAiLoading(true);
     try {
       const token = getAuthItem("token");
-      const res = await axios.get("http://localhost:5000/api/sales/ai-predictions", {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/sales/ai-predictions`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setAiPredictions(res.data);
@@ -84,7 +84,7 @@ const Analytics = ({ products, analytics, onUpdate }) => {
         params: { startDate, endDate }
       };
 
-      const response = await axios.get("http://localhost:5000/api/analytics", config);
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/analytics`, config);
       setFilteredAnalytics(response.data);
     } catch (err) {
       console.error("Error fetching filtered analytics:", err);

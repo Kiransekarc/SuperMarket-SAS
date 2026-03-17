@@ -24,7 +24,7 @@ const Bill = () => {
     setVoidLoading(true);
     try {
       const token = getAuthItem("token");
-      const response = await fetch(`http://localhost:5000/api/sales/${sale._id}/void`, {
+      const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/sales/${sale._id}/void`, {
         method: "DELETE",
         headers: { Authorization: `Bearer ${token}` }
       });
@@ -57,7 +57,7 @@ const Bill = () => {
     const fetchRecentSales = async () => {
       try {
         const token = localStorage.getItem("token");
-        const response = await fetch("http://localhost:5000/api/sales", {
+        const response = await fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/sales`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         const data = await response.json();

@@ -35,7 +35,7 @@ const UploadData = ({ onUpdate }) => {
 
     // Test backend connection first
     try {
-      const healthCheck = await axios.get("http://localhost:5000/api/health");
+      const healthCheck = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/health`);
       console.log("✅ Backend is reachable:", healthCheck.data);
     } catch (err) {
       console.error("❌ Backend not reachable!");
@@ -58,10 +58,10 @@ const UploadData = ({ onUpdate }) => {
         return;
       }
 
-      console.log("Sending POST to: http://localhost:5000/api/sales/analyze-transactions");
+      console.log("Sending POST to: " + (process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/sales/analyze-transactions");
 
       const response = await axios.post(
-        "http://localhost:5000/api/sales/analyze-transactions",
+        `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/sales/analyze-transactions`,
         formData,
         {
           headers: {
@@ -110,10 +110,10 @@ const UploadData = ({ onUpdate }) => {
     try {
       const token = getAuthItem("token");
 
-      console.log("Sending POST to: http://localhost:5000/api/sales/upload-transactions");
+      console.log("Sending POST to: " + (process.env.REACT_APP_API_URL || "http://localhost:5000") + "/api/sales/upload-transactions");
 
       const response = await axios.post(
-        "http://localhost:5000/api/sales/upload-transactions",
+        `${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/sales/upload-transactions`,
         formData,
         {
           headers: {

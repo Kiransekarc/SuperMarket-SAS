@@ -60,7 +60,7 @@ const CustomerStore = () => {
   const bannerTimer = useRef(null);
 
   useEffect(() => {
-    fetch("http://localhost:5000/api/products/public")
+    fetch(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/products/public`)
       .then(r => r.json()).then(d => { setProducts(d); setLoading(false); })
       .catch(() => setLoading(false));
   }, []);

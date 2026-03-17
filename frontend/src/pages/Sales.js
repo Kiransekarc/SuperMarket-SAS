@@ -155,7 +155,7 @@ const Sales = ({ products, onUpdate }) => {
     try {
       const token = getAuthItem("token");
       console.log("Fetching customer with phone:", phone);
-      const response = await axios.get(`http://localhost:5000/api/customers/phone/${phone}`, {
+      const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/customers/phone/${phone}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       
@@ -232,7 +232,7 @@ const Sales = ({ products, onUpdate }) => {
 
       console.log("Sending sale data:", saleData);
 
-      const response = await axios.post("http://localhost:5000/api/sales", saleData, {
+      const response = await axios.post(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/sales`, saleData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

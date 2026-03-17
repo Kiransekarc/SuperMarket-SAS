@@ -26,7 +26,7 @@ const AIPredictions = () => {
     setLoading(true);
     try {
       const token = getAuthItem("token");
-      const res = await axios.get("http://localhost:5000/api/sales/ai-predictions", {
+      const res = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/sales/ai-predictions`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       setPredictions(res.data);
