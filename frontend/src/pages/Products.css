@@ -237,25 +237,24 @@
     border-radius: 100px;
     font-size: 12px;
     font-weight: 700;
-    backdrop-filter: blur(8px);
     display: flex;
     align-items: center;
     gap: 6px;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
 
 .stock-healthy {
-    background: rgba(16, 185, 129, 0.9);
+    background: #10b981;
     color: white;
 }
 
 .stock-warning {
-    background: rgba(245, 158, 11, 0.9);
+    background: #f59e0b;
     color: white;
 }
 
 .stock-critical {
-    background: rgba(239, 68, 68, 0.9);
+    background: #ef4444;
     color: white;
 }
 

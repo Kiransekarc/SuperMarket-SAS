@@ -613,11 +613,17 @@ const Products = ({ products, onUpdate }) => {
                 <div className="product-image-container">
                   {/* Status Badge */}
                   {isOutOfStock ? (
-                    <div className="stock-badge stock-critical"><i className="fas fa-times-circle"></i> Out of Stock</div>
+                    <div className="stock-badge stock-critical" style={{ background: '#ef4444', color: 'white' }}>
+                      <i className="fas fa-times-circle"></i> Out of Stock
+                    </div>
                   ) : isLowStock ? (
-                    <div className="stock-badge stock-warning"><i className="fas fa-exclamation-triangle"></i> Low Stock ({product.stock})</div>
+                    <div className="stock-badge stock-warning" style={{ background: '#f59e0b', color: 'white' }}>
+                      <i className="fas fa-exclamation-triangle"></i> Low Stock ({product.stock})
+                    </div>
                   ) : (
-                    <div className="stock-badge stock-healthy"><i className="fas fa-check-circle"></i> In Stock ({product.stock})</div>
+                    <div className="stock-badge stock-healthy" style={{ background: '#10b981', color: 'white' }}>
+                      <i className="fas fa-check-circle"></i> In Stock ({product.stock})
+                    </div>
                   )}
 
                   {/* Expiry Badge Overlay */}
@@ -669,11 +675,8 @@ const Products = ({ products, onUpdate }) => {
 
                 {/* Details Container */}
                 <div className="product-details">
-                  <div className="product-category" style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div className="product-category">
                     <span>{product.category || 'Uncategorized'}</span>
-                    <span style={{ background: '#f1f5f9', color: '#475569', padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 'bold' }}>
-                      <i className="fas fa-barcode"></i> {product.productId}
-                    </span>
                   </div>
                   <h3 className="product-title">{product.name}</h3>
                   <div className="product-brand">{product.brand || 'No Brand'}</div>
