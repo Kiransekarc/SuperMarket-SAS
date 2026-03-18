@@ -304,6 +304,12 @@
     color: #3b82f6;
     display: flex;
     align-items: center;
+    justify-content: center;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    font-weight: 700;
+    transition: all 0.2s ease;
 }
 
 /* preview panel styling */
