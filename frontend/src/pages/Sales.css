@@ -1143,3 +1143,171 @@ select.form-input-clean {
     background: rgba(245, 158, 11, 0.15);
     color: #d97706;
 }
+
+/* --- Qty Popup (double-click on product) --- */
+.qty-popup-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 3000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.15s ease;
+}
+
+.qty-popup {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 24px;
+    width: 100%;
+    max-width: 360px;
+    box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25);
+    animation: scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.qty-popup-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.qty-popup-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: #eff6ff;
+    color: #3b82f6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.qty-popup-name {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.qty-popup-sub {
+    margin: 0;
+    font-size: 12px;
+    color: #64748b;
+    font-weight: 500;
+}
+
+.qty-popup-close {
+    margin-left: auto;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    border: none;
+    background: #f1f5f9;
+    color: #64748b;
+    font-size: 14px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+}
+
+.qty-popup-close:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.qty-popup-body {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: #f8fafc;
+    border-radius: 14px;
+    padding: 8px;
+    border: 1px solid #e2e8f0;
+}
+
+.qty-popup-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    border: none;
+    background: #3b82f6;
+    color: white;
+    font-size: 20px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.qty-popup-btn:hover {
+    background: #2563eb;
+    transform: scale(1.05);
+}
+
+.qty-popup-input {
+    flex: 1;
+    text-align: center;
+    border: none;
+    background: transparent;
+    font-size: 24px;
+    font-weight: 800;
+    color: #0f172a;
+    outline: none;
+    min-width: 0;
+}
+
+.qty-popup-input::-webkit-inner-spin-button,
+.qty-popup-input::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+}
+
+.qty-popup-total {
+    text-align: center;
+    font-size: 14px;
+    color: #64748b;
+    font-weight: 600;
+}
+
+.qty-popup-total strong {
+    color: #10b981;
+    font-size: 22px;
+    font-weight: 900;
+    margin-left: 4px;
+}
+
+.qty-popup-confirm {
+    width: 100%;
+    padding: 14px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.2s;
+    box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.qty-popup-confirm:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+}
