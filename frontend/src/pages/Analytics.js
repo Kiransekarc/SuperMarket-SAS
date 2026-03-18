@@ -477,13 +477,19 @@ const Analytics = ({ products, analytics, onUpdate }) => {
         
         // Find rising trend from AI predictions
         const rising = aiPredictions.filter(p => p.trend === 'rising');
+        const stable = aiPredictions.filter(p => p.trend === 'stable' && p.urgency === 'ok');
         
         // Find dead stock or falling trend
         const deadStock = aiPredictions.filter(p => p.sold30d === 0 || p.trend === 'falling');
 
-        // Festival insights logic - checking for Sweets, Biscuits, or Snacks categories
+        // Festival insights logic - dynamically get categories from products
+        const allCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
+        const festivalKeywords = ['sweet', 'biscuit', 'snack', 'chocolate', 'confection', 'candy', 'bakery', 'beverage'];
+        const festivalCategories = allCategories.filter(cat =>
+          festivalKeywords.some(kw => cat.toLowerCase().includes(kw))
+        );
         const festivalProducts = products.filter(p =>
-          ['Sweets', 'Biscuits', 'Snacks'].some(category => p.category?.toLowerCase().includes(category.toLowerCase()))
+          festivalCategories.some(cat => p.category === cat)
         );
 
         return (
@@ -501,15 +507,22 @@ const Analytics = ({ products, analytics, onUpdate }) => {
                 </div>
                 <div className="card-body">
                   {rising.length > 0 ? (
-                    <p>Demand for <strong>{rising.slice(0, 3).map(p => p.productName).join(', ')}</strong> 
-                      {rising.length > 3 && (
-                        <span 
-                          className="clickable-insight-link" 
-                          onClick={() => setSelectedInsight({ title: "Trending Products", items: rising, type: 'rising' })}
-                        >
-                          {' '}and {rising.length - 3} others
+                    <p>Demand for <strong>{rising.slice(0, 2).map(p => p.productName).join(', ')}</strong>
+                      {rising.length > 2 && (
+                        <span className="clickable-insight-link"
+                          onClick={() => setSelectedInsight({ title: "Trending Products", items: rising, type: 'rising' })}>
+                          {' '}and {rising.length - 2} others
                         </span>
                       )} expected to increase next week.
+                    </p>
+                  ) : stable.length > 0 ? (
+                    <p>Steady demand for <strong>{stable.slice(0, 2).map(p => p.productName).join(', ')}</strong>
+                      {stable.length > 2 && (
+                        <span className="clickable-insight-link"
+                          onClick={() => setSelectedInsight({ title: "Stable Products", items: stable, type: 'rising' })}>
+                          {' '}and {stable.length - 2} others
+                        </span>
+                      )} expected next week.
                     </p>
                   ) : (
                     <p>Steady demand expected across most products next week.</p>
@@ -565,10 +578,20 @@ const Analytics = ({ products, analytics, onUpdate }) => {
                   <h4>Festival Insight</h4>
                 </div>
                 <div className="card-body">
-                  {festivalProducts.length > 0 ? (
-                    <p>Categories like <strong>Sweets & Snacks</strong> may see higher demand during upcoming festivals. Consider stocking up!</p>
+                  {festivalCategories.length > 0 ? (
+                    <p>
+                      Categories like <strong>{festivalCategories.slice(0, 2).join(', ')}</strong>
+                      {festivalCategories.length > 2 && (
+                        <span
+                          className="clickable-insight-link"
+                          onClick={() => setSelectedInsight({ title: "Festival Categories", items: festivalProducts.map(p => ({ ...p, productName: p.name, sold30d: p.stock })), type: 'rising' })}
+                        >
+                          {' '}and {festivalCategories.length - 2} more
+                        </span>
+                      )} may see higher demand during upcoming festivals. Consider stocking up!
+                    </p>
                   ) : (
-                    <p>Sweets, biscuits, and snacks may have higher demand during upcoming festivals.</p>
+                    <p>No festival-relevant categories found in your current inventory.</p>
                   )}
                 </div>
               </div>
