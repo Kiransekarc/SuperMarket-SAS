@@ -10,9 +10,9 @@ const app = express();
 
 // CORS Configuration - CRITICAL FOR FILE UPLOADS
 app.use(cors({
-  origin: ["http://localhost:3000", "http://localhost:3001"], // Both ports
+  origin: true,
   credentials: true,
-  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
