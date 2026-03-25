@@ -19,7 +19,7 @@ router.get("/public", async (req, res) => {
 // Get all products
 router.get("/", verifyToken, async (req, res) => {
   try {
-    const products = await Product.find();
+    const products = await Product.find({ isActive: { $ne: false } });
     res.json(products);
   } catch (err) {
     console.error("Get products error:", err);
@@ -30,7 +30,7 @@ router.get("/", verifyToken, async (req, res) => {
 // Add new product
 router.post("/", verifyToken, async (req, res) => {
   try {
-    const { productId, name, brand, category, price, stock, reorderLevel, imageUrl, expiryDate } = req.body;
+    const { productId, name, brand, category, price, stock, reorderLevel, imageUrl, expiryDate, discountType, discountValue, discountStartDate, discountEndDate } = req.body;
     // Require at least productId, name, and brand
     if (!productId || !name || !brand) {
       return res.status(400).json({ error: "Product ID, name, and brand are required" });
@@ -50,6 +50,10 @@ router.post("/", verifyToken, async (req, res) => {
       if (reorderLevel !== undefined) updatedFields.reorderLevel = Number(reorderLevel);
       if (imageUrl !== undefined) updatedFields.imageUrl = imageUrl;
       if (expiryDate !== undefined) updatedFields.expiryDate = expiryDate ? new Date(expiryDate) : null;
+      if (discountType !== undefined) updatedFields.discountType = discountType;
+      if (discountValue !== undefined) updatedFields.discountValue = Number(discountValue);
+      if (discountStartDate !== undefined) updatedFields.discountStartDate = discountStartDate ? new Date(discountStartDate) : null;
+      if (discountEndDate !== undefined) updatedFields.discountEndDate = discountEndDate ? new Date(discountEndDate) : null;
 
       const updatedProduct = await Product.findByIdAndUpdate(
         existing._id,
@@ -71,7 +75,11 @@ router.post("/", verifyToken, async (req, res) => {
       stock: Number(stock) || 0,
       reorderLevel: Number(reorderLevel) || 10,
       imageUrl: imageUrl || '',
-      expiryDate: expiryDate ? new Date(expiryDate) : null
+      expiryDate: expiryDate ? new Date(expiryDate) : null,
+      discountType: discountType || "none",
+      discountValue: Number(discountValue) || 0,
+      discountStartDate: discountStartDate ? new Date(discountStartDate) : null,
+      discountEndDate: discountEndDate ? new Date(discountEndDate) : null
     });
 
     const savedProduct = await newProduct.save();

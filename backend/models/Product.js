@@ -25,8 +25,8 @@ const productSchema = new mongoose.Schema(
     },
     price: {
       type: Number,
-      required: [true, "Price is required"],
-      min: [0, "Price cannot be negative"]
+      min: [0, "Price cannot be negative"],
+      default: 0
     },
     costPrice: {
       type: Number,
