@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import { Bar, Doughnut } from "react-chartjs-2";
 import axios from "axios";
+import { toast } from "react-toastify";
 import { getAuthItem } from "../utils/authStorage";
 import "./Analytics.css";
 import {
@@ -34,6 +35,8 @@ const Analytics = ({ products, analytics, onUpdate }) => {
   const [isFiltering, setIsFiltering] = useState(false);
   const [topCustomers, setTopCustomers] = useState([]);
   const [tableView, setTableView] = useState('products');
+  const [productSearch, setProductSearch] = useState('');
+  const [customerSearch, setCustomerSearch] = useState('');
   const [aiPredictions, setAiPredictions] = useState([]);
   const [aiLoading, setAiLoading] = useState(false);
   const [selectedInsight, setSelectedInsight] = useState(null); // { title: string, items: array }
@@ -70,12 +73,10 @@ const Analytics = ({ products, analytics, onUpdate }) => {
 
   useEffect(() => { fetchAIPredictions(); }, [fetchAIPredictions]);
 
-  // Function to fetch filtered analytics
   const fetchFilteredAnalytics = async () => {
     if (!startDate || !endDate) {
       return;
     }
-
     setIsFiltering(true);
     try {
       const token = getAuthItem("token");
@@ -83,11 +84,14 @@ const Analytics = ({ products, analytics, onUpdate }) => {
         headers: { Authorization: `Bearer ${token}` },
         params: { startDate, endDate }
       };
-
       const response = await axios.get(`${process.env.REACT_APP_API_URL || "http://localhost:5000"}/api/analytics`, config);
       setFilteredAnalytics(response.data);
+      if (response.data.length === 0) {
+        toast.info("No sales found for the selected date range.");
+      }
     } catch (err) {
       console.error("Error fetching filtered analytics:", err);
+      toast.error("Failed to fetch filtered analytics.");
     } finally {
       setIsFiltering(false);
     }
@@ -436,7 +440,7 @@ const Analytics = ({ products, analytics, onUpdate }) => {
 
           <div style={{ height: "380px" }}>
             {chartData.labels.length > 0 ? (
-              <Bar data={chartData} options={barOptions} />
+              <Bar key={`bar-${chartFilter}`} data={chartData} options={barOptions} />
             ) : (
               <div className="chart-empty-state">
                 <i className="fas fa-chart-bar"></i>
@@ -457,7 +461,7 @@ const Analytics = ({ products, analytics, onUpdate }) => {
 
           <div style={{ height: "380px" }}>
             {pieData.labels.length > 0 ? (
-              <Doughnut data={pieData} options={pieOptions} />
+              <Doughnut key="doughnut-chart" data={pieData} options={pieOptions} />
             ) : (
               <div className="chart-empty-state">
                 <i className="fas fa-chart-pie"></i>
@@ -470,101 +474,129 @@ const Analytics = ({ products, analytics, onUpdate }) => {
 
       {/* AI Demand Insights */}
       {(() => {
-        // Find critical items (stock is 0 or less than reorder level)
+        // Top 5 by sold30d (most sales)
+        const top5 = [...aiPredictions]
+          .filter(p => p.sold30d > 0)
+          .sort((a, b) => b.sold30d - a.sold30d)
+          .slice(0, 5);
+
+        // Bottom 5 with 0 sales or lowest sold30d
+        const bottom5 = [...aiPredictions]
+          .sort((a, b) => a.sold30d - b.sold30d)
+          .slice(0, 5);
+
+        // Stock alerts
         const outOfStock = products.filter(p => p.stock <= 0);
         const lowStock = products.filter(p => p.stock > 0 && p.stock <= p.reorderLevel);
-        const critical = outOfStock.length > 0 ? outOfStock : lowStock;
-        
-        // Find rising trend from AI predictions
-        const rising = aiPredictions.filter(p => p.trend === 'rising');
-        const stable = aiPredictions.filter(p => p.trend === 'stable' && p.urgency === 'ok');
-        
-        // Find dead stock or falling trend
-        const deadStock = aiPredictions.filter(p => p.sold30d === 0 || p.trend === 'falling');
 
-        // Festival insights logic - dynamically get categories from products
+        // Festival insight — find upcoming Indian festivals based on current month
+        const month = new Date().getMonth() + 1; // 1-12
+        let festivalName = '';
+        let festivalKeywords = [];
+        if (month === 10 || month === 11) { festivalName = 'Diwali'; festivalKeywords = ['sweet', 'chocolate', 'candy', 'snack', 'biscuit', 'confection', 'gift', 'dry fruit', 'bakery']; }
+        else if (month === 3 || month === 4) { festivalName = 'Ugadi / Tamil New Year'; festivalKeywords = ['sweet', 'rice', 'grocery', 'spice', 'beverage', 'fruit', 'vegetable']; }
+        else if (month === 8 || month === 9) { festivalName = 'Onam / Ganesh Chaturthi'; festivalKeywords = ['sweet', 'fruit', 'vegetable', 'rice', 'grocery', 'snack']; }
+        else if (month === 12 || month === 1) { festivalName = 'Christmas / New Year'; festivalKeywords = ['bakery', 'beverage', 'chocolate', 'snack', 'cake', 'candy']; }
+        else if (month === 2) { festivalName = 'Pongal / Makar Sankranti'; festivalKeywords = ['rice', 'sweet', 'grocery', 'sugar', 'jaggery', 'dairy']; }
+        else { festivalName = 'Upcoming Season'; festivalKeywords = ['snack', 'beverage', 'grocery']; }
+
         const allCategories = [...new Set(products.map(p => p.category).filter(Boolean))];
-        const festivalKeywords = ['sweet', 'biscuit', 'snack', 'chocolate', 'confection', 'candy', 'bakery', 'beverage'];
         const festivalCategories = allCategories.filter(cat =>
           festivalKeywords.some(kw => cat.toLowerCase().includes(kw))
         );
-        const festivalProducts = products.filter(p =>
-          festivalCategories.some(cat => p.category === cat)
-        );
+        const festivalProducts = products
+          .filter(p => festivalCategories.some(cat => p.category === cat))
+          .slice(0, 5);
 
         return (
           <div className="ai-insights-section">
             <h3 className="section-title">
               <i className="fas fa-magic"></i> AI Insights
             </h3>
-            
+
             <div className="ai-insights-grid">
-              {/* Demand Prediction Card */}
+              {/* Prediction Card — Top 5 products */}
               <div className="insight-card prediction-card">
                 <div className="card-header">
                   <i className="fas fa-chart-line card-icon"></i>
-                  <h4>Prediction</h4>
+                  <h4>Top 5 Selling Products</h4>
                 </div>
                 <div className="card-body">
-                  {rising.length > 0 ? (
-                    <p>Demand for <strong>{rising.slice(0, 2).map(p => p.productName).join(', ')}</strong>
-                      {rising.length > 2 && (
-                        <span className="clickable-insight-link"
-                          onClick={() => setSelectedInsight({ title: "Trending Products", items: rising, type: 'rising' })}>
-                          {' '}and {rising.length - 2} others
-                        </span>
-                      )} expected to increase next week.
-                    </p>
-                  ) : stable.length > 0 ? (
-                    <p>Steady demand for <strong>{stable.slice(0, 2).map(p => p.productName).join(', ')}</strong>
-                      {stable.length > 2 && (
-                        <span className="clickable-insight-link"
-                          onClick={() => setSelectedInsight({ title: "Stable Products", items: stable, type: 'rising' })}>
-                          {' '}and {stable.length - 2} others
-                        </span>
-                      )} expected next week.
-                    </p>
+                  {top5.length > 0 ? (
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {top5.map((p, i) => (
+                        <li key={p.productId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                          <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                            <span style={{ fontWeight: 800, color: i === 0 ? '#f59e0b' : i === 1 ? '#94a3b8' : i === 2 ? '#c2410c' : '#64748b', minWidth: '18px' }}>#{i + 1}</span>
+                            <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{p.productName}</span>
+                          </span>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#10b981', background: '#f0fdf4', padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+                            {p.sold30d} sold
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
                   ) : (
-                    <p>Steady demand expected across most products next week.</p>
+                    <p>No sales data available yet.</p>
                   )}
                 </div>
               </div>
 
-              {/* Low Stock Alert Card */}
+              {/* Alert Card */}
               <div className="insight-card alert-card">
                 <div className="card-header">
                   <i className="fas fa-exclamation-triangle card-icon"></i>
-                  <h4>Alert</h4>
+                  <h4>Stock Alert</h4>
                 </div>
                 <div className="card-body">
                   {outOfStock.length > 0 ? (
-                    <p><strong>{outOfStock[0].name}</strong> is currently <strong>out of stock</strong>!</p>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {outOfStock.slice(0, 5).map(p => (
+                        <li key={p._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{p.name}</span>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#ef4444', background: '#fef2f2', padding: '2px 8px', borderRadius: '999px' }}>Out of Stock</span>
+                        </li>
+                      ))}
+                    </ul>
                   ) : lowStock.length > 0 ? (
-                    <p><strong>{lowStock[0].name}</strong> stock is running low ({lowStock[0].stock} remaining).</p>
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      {lowStock.slice(0, 5).map(p => (
+                        <li key={p._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                          <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{p.name}</span>
+                          <span style={{ fontSize: '12px', fontWeight: 700, color: '#f59e0b', background: '#fffbeb', padding: '2px 8px', borderRadius: '999px' }}>{p.stock} left</span>
+                        </li>
+                      ))}
+                    </ul>
                   ) : (
-                    <p>All product stocks are currently at healthy levels.</p>
+                    <p>All product stocks are at healthy levels.</p>
                   )}
                 </div>
               </div>
 
-              {/* Dead Stock Action Card */}
+              {/* Action Required — Bottom 5 (0 or lowest sales) */}
               <div className="insight-card discount-card">
                 <div className="card-header">
                   <i className="fas fa-tags card-icon"></i>
                   <h4>Action Required</h4>
                 </div>
                 <div className="card-body">
-                  {deadStock.length > 0 ? (
-                    <p><strong>{deadStock.slice(0, 3).map(p => p.productName).join(', ')}</strong>
-                      {deadStock.length > 3 && (
-                        <span 
-                          className="clickable-insight-link" 
-                          onClick={() => setSelectedInsight({ title: "Slow-Moving Products", items: deadStock, type: 'falling' })}
-                        >
-                          {' '}and {deadStock.length - 3} others
-                        </span>
-                      )} have slow sales. Consider running a discount promotion.
-                    </p>
+                  {bottom5.length > 0 ? (
+                    <>
+                      <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px' }}>Slow-moving products — consider a discount promotion:</p>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {bottom5.map((p, i) => (
+                          <li key={p.productId} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                            <span style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                              <span style={{ fontWeight: 800, color: '#ef4444', minWidth: '18px' }}>#{i + 1}</span>
+                              <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{p.productName}</span>
+                            </span>
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: '#ef4444', background: '#fef2f2', padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+                              {p.sold30d === 0 ? 'No sales' : `${p.sold30d} sold`}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
                   ) : (
                     <p>All products are currently moving well!</p>
                   )}
@@ -575,23 +607,27 @@ const Analytics = ({ products, analytics, onUpdate }) => {
               <div className="insight-card festival-card">
                 <div className="card-header">
                   <i className="fas fa-gift card-icon"></i>
-                  <h4>Festival Insight</h4>
+                  <h4>Festival Insight — {festivalName}</h4>
                 </div>
                 <div className="card-body">
-                  {festivalCategories.length > 0 ? (
-                    <p>
-                      Categories like <strong>{festivalCategories.slice(0, 2).join(', ')}</strong>
-                      {festivalCategories.length > 2 && (
-                        <span
-                          className="clickable-insight-link"
-                          onClick={() => setSelectedInsight({ title: "Festival Categories", items: festivalProducts.map(p => ({ ...p, productName: p.name, sold30d: p.stock })), type: 'rising' })}
-                        >
-                          {' '}and {festivalCategories.length - 2} more
-                        </span>
-                      )} may see higher demand during upcoming festivals. Consider stocking up!
-                    </p>
+                  {festivalProducts.length > 0 ? (
+                    <>
+                      <p style={{ fontSize: '12px', color: '#64748b', marginBottom: '10px' }}>
+                        Stock up on these for <strong>{festivalName}</strong> demand:
+                      </p>
+                      <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                        {festivalProducts.map(p => (
+                          <li key={p._id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
+                            <span style={{ fontSize: '13px', fontWeight: 600, color: '#0f172a' }}>{p.name}</span>
+                            <span style={{ fontSize: '12px', fontWeight: 700, color: '#8b5cf6', background: '#f5f3ff', padding: '2px 8px', borderRadius: '999px', whiteSpace: 'nowrap' }}>
+                              {p.category}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
                   ) : (
-                    <p>No festival-relevant categories found in your current inventory.</p>
+                    <p>No festival-relevant products found in current inventory for <strong>{festivalName}</strong>.</p>
                   )}
                 </div>
               </div>
@@ -609,7 +645,7 @@ const Analytics = ({ products, analytics, onUpdate }) => {
                   </div>
                   <div className="ai-insight-modal-body">
                     <p className="ai-insight-modal-desc">
-                      {selectedInsight.type === 'rising' 
+                      {selectedInsight.type === 'rising'
                         ? 'These products are currently showing strong upward sales trends based on recent 7-day and 30-day data.'
                         : 'These products have had zero sales in the last 30 days or a declining sales trend. Consider marking them down.'}
                     </p>
@@ -622,11 +658,11 @@ const Analytics = ({ products, analytics, onUpdate }) => {
                           </div>
                           <div className="ai-insight-item-stats">
                             <span className="ai-stat-badge">
-                                {selectedInsight.type === 'rising' ? (
-                                    <><i className="fas fa-arrow-trend-up" style={{ color: '#10b981' }}></i> Trending</>
-                                ) : (
-                                    <><i className="fas fa-arrow-trend-down" style={{ color: '#ef4444' }}></i> Slow Moving</>
-                                )}
+                              {selectedInsight.type === 'rising' ? (
+                                <><i className="fas fa-arrow-trend-up" style={{ color: '#10b981' }}></i> Trending</>
+                              ) : (
+                                <><i className="fas fa-arrow-trend-down" style={{ color: '#ef4444' }}></i> Slow Moving</>
+                              )}
                             </span>
                             <span className="ai-stat-badge">Sold (30d): {item.sold30d}</span>
                           </div>
@@ -644,7 +680,7 @@ const Analytics = ({ products, analytics, onUpdate }) => {
 
       {/* Detailed Analytics Tables Section */}
       <div className="analytics-table-panel">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '15px' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px', flexWrap: 'wrap', gap: '15px' }}>
           <h3 className="chart-title" style={{ margin: 0 }}>
             {tableView === 'products' ? (
               <><i className="fas fa-table" style={{ color: "#3b82f6", marginRight: "8px" }}></i> Detailed Product Analytics</>
@@ -653,19 +689,43 @@ const Analytics = ({ products, analytics, onUpdate }) => {
             )}
           </h3>
 
-          <div className="chart-toggles">
-            <button
-              className={`btn-chart-toggle ${tableView === 'products' ? 'active' : ''}`}
-              onClick={() => setTableView('products')}
-            >
-              <i className="fas fa-box"></i> Products
-            </button>
-            <button
-              className={`btn-chart-toggle ${tableView === 'customers' ? 'active' : ''}`}
-              onClick={() => setTableView('customers')}
-            >
-              <i className="fas fa-users"></i> Customers
-            </button>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+            {/* Search input */}
+            <div style={{ position: 'relative' }}>
+              <i className="fas fa-search" style={{ position: 'absolute', left: '10px', top: '50%', transform: 'translateY(-50%)', color: '#94a3b8', fontSize: '13px' }}></i>
+              {tableView === 'products' ? (
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  value={productSearch}
+                  onChange={e => setProductSearch(e.target.value)}
+                  style={{ paddingLeft: '32px', paddingRight: '12px', height: '36px', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '13px', outline: 'none', color: '#0f172a', width: '200px' }}
+                />
+              ) : (
+                <input
+                  type="text"
+                  placeholder="Search customers..."
+                  value={customerSearch}
+                  onChange={e => setCustomerSearch(e.target.value)}
+                  style={{ paddingLeft: '32px', paddingRight: '12px', height: '36px', borderRadius: '8px', border: '1.5px solid #e2e8f0', fontSize: '13px', outline: 'none', color: '#0f172a', width: '200px' }}
+                />
+              )}
+            </div>
+
+            <div className="chart-toggles">
+              <button
+                className={`btn-chart-toggle ${tableView === 'products' ? 'active' : ''}`}
+                onClick={() => setTableView('products')}
+              >
+                <i className="fas fa-box"></i> Products
+              </button>
+              <button
+                className={`btn-chart-toggle ${tableView === 'customers' ? 'active' : ''}`}
+                onClick={() => setTableView('customers')}
+              >
+                <i className="fas fa-users"></i> Customers
+              </button>
+            </div>
           </div>
         </div>
 
@@ -685,6 +745,12 @@ const Analytics = ({ products, analytics, onUpdate }) => {
               <tbody>
                 {[...validAnalytics]
                   .sort((a, b) => b.totalQuantitySold - a.totalQuantitySold)
+                  .filter((item) => {
+                    const product = products.find((p) => p._id === item._id);
+                    if (!product) return false;
+                    const q = productSearch.toLowerCase();
+                    return !q || product.name.toLowerCase().includes(q) || product.brand.toLowerCase().includes(q);
+                  })
                   .map((item, index) => {
                     const product = products.find((p) => p._id === item._id);
                     if (!product) return null;
@@ -725,7 +791,12 @@ const Analytics = ({ products, analytics, onUpdate }) => {
                     </td>
                   </tr>
                 ) : (
-                  topCustomers.map((customer, index) => (
+                  topCustomers
+                  .filter(customer => {
+                    const q = customerSearch.toLowerCase();
+                    return !q || customer.name?.toLowerCase().includes(q) || customer.phone?.includes(q);
+                  })
+                  .map((customer, index) => (
                     <tr key={customer._id}>
                       <td className={`rank-badge rank-${index < 3 ? index + 1 : 'normal'}`}>
                         #{index + 1}

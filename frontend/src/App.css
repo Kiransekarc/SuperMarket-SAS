@@ -532,7 +532,7 @@ textarea::placeholder {
   height: 100vh;
   display: flex;
   padding: 0;
-  background: #ffffff;
+  background: #f8fafc;
   overflow: hidden;
   position: fixed;
   top: 0;
@@ -576,17 +576,17 @@ textarea::placeholder {
   justify-content: center;
   align-items: center;
   padding: 40px;
-  background-color: #ffffff;
+  background-color: transparent;
 }
 
 .login-glass-card {
-  background: #fff;
-  border: none;
-  padding: 48px;
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  padding: 56px 48px;
   border-radius: 24px;
   width: 100%;
-  max-width: 440px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.08);
+  max-width: 420px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.04), 0 1px 3px rgba(0,0,0,0.02);
   animation: slideUp 0.8s ease;
 }
 
@@ -636,27 +636,27 @@ textarea::placeholder {
 
 .login-brand-text span:first-child {
   font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
+  font-weight: 600;
+  color: #0f172a;
 }
 
 .login-brand-text span:last-child {
   font-size: 16px;
-  font-weight: 700;
-  color: #1e293b;
+  font-weight: 600;
+  color: #64748b;
 }
 
 .login-top {
-  margin-bottom: 32px;
+  margin-bottom: 40px;
 }
 
 .login-top h1 {
-  font-size: 36px;
-  font-weight: 800;
-  line-height: 1.1;
-  color: #1e293b;
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #0f172a;
   margin: 0;
-  letter-spacing: -0.5px;
+  letter-spacing: -0.8px;
 }
 
 .input-group {
@@ -686,13 +686,13 @@ textarea::placeholder {
 
 .input-wrapper input {
   width: 100%;
-  padding: 16px 16px 16px 50px;
-  border: 2px solid #e2e8f0;
-  border-radius: 12px;
+  padding: 15px 16px 15px 48px;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
   font-size: 15px;
-  color: #1e293b;
-  background: #fff;
-  transition: all 0.3s ease;
+  color: #0f172a;
+  background: #fafafa;
+  transition: all 0.2s ease;
   font-family: 'Open Sans', sans-serif;
   font-weight: 400;
 }
@@ -700,7 +700,8 @@ textarea::placeholder {
 .input-wrapper input:focus {
   outline: none;
   border-color: #2563eb;
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+  background: #ffffff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.05);
 }
 
 .input-wrapper input::placeholder {
@@ -792,22 +793,23 @@ textarea::placeholder {
 
 .login-btn {
   width: 100%;
-  padding: 16px;
-  border-radius: 12px;
+  padding: 15px;
+  border-radius: 10px;
   border: none;
   background: #2563eb;
   color: #fff;
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 15px;
+  font-weight: 600;
   cursor: pointer;
   margin-bottom: 24px;
-  transition: all 0.3s ease;
+  transition: all 0.2s ease;
+  letter-spacing: 0.2px;
 }
 
 .login-btn:hover {
   background: #1d4ed8;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 15px rgba(37, 99, 235, 0.2);
 }
 
 .login-footer {
@@ -822,18 +824,18 @@ textarea::placeholder {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  margin-top: 20px;
-  padding: 14px 20px;
-  background: #f8fafc;
-  border: 1.5px solid #e2e8f0;
-  border-radius: 14px;
+  gap: 8px;
+  margin-top: 16px;
+  padding: 16px 20px;
+  background: transparent;
+  border: 1px dashed #e2e8f0;
+  border-radius: 10px;
 }
 
 .login-customer-link span {
   font-size: 13px;
   color: #64748b;
-  font-weight: 500;
+  font-weight: 400;
 }
 
 .login-customer-link a {
@@ -841,20 +843,20 @@ textarea::placeholder {
   align-items: center;
   gap: 6px;
   font-size: 13px;
-  font-weight: 700;
+  font-weight: 600;
   color: #2563eb;
   text-decoration: none;
-  padding: 6px 14px;
-  background: #eff6ff;
-  border-radius: 8px;
-  border: 1px solid #bfdbfe;
+  padding: 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
   transition: all 0.2s;
 }
 
 .login-customer-link a:hover {
-  background: #2563eb;
-  color: white;
-  border-color: #2563eb;
+  background: transparent;
+  color: #2563eb;
+  border-color: transparent;
 }
 
 .separator {
@@ -915,9 +917,10 @@ textarea::placeholder {
 .login-footer {
   text-align: center;
   margin-top: 32px;
-  color: #475569;
-  font-size: 15px;
-  font-weight: 500;
+  color: #94a3b8;
+  font-size: 13px;
+  font-weight: 400;
+  letter-spacing: 0.3px;
 }
 
 .login-footer a {

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { toast } from "react-toastify";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -8,6 +8,13 @@ import "./Sales.css";
 
 const Sales = ({ products, onUpdate }) => {
   const [cart, setCart] = useState([]);
+  const cartListRef = useRef(null);
+
+  useEffect(() => {
+    if (cartListRef.current) {
+      cartListRef.current.scrollLeft = cartListRef.current.scrollWidth;
+    }
+  }, [cart]);
   const [paymentMethod, setPaymentMethod] = useState("cash");
   const [searchTerm, setSearchTerm] = useState("");
   const [isScannerOpen, setIsScannerOpen] = useState(false);
@@ -495,20 +502,20 @@ const Sales = ({ products, onUpdate }) => {
         <div className="floating-cart-bar">
           <div className="floating-cart-bar-left">
             <div className="floating-cart-icon-wrap">
-              <i className="fas fa-shopping-basket"></i>
+              <i className="fas fa-cart-shopping"></i>
               <span className="floating-cart-count">{cart.reduce((s, i) => s + i.quantity, 0)}</span>
             </div>
-            <div className="floating-cart-items-list">
-              {cart.slice(-3).map((item) => (
+            <div className="floating-cart-items-list" ref={cartListRef}>
+              {cart.map((item) => (
                 <div key={item.product._id} className="floating-cart-chip">
                   <span className="chip-qty">{item.quantity}×</span>
                   <span className="chip-name">{item.product.name}</span>
                   <span className="chip-price">₹{(item.price * item.quantity).toFixed(0)}</span>
+                  <button className="chip-remove" onClick={(e) => { e.stopPropagation(); removeFromCart(item.product._id); }} title="Remove">
+                    <i className="fas fa-times"></i>
+                  </button>
                 </div>
               ))}
-              {cart.length > 3 && (
-                <div className="floating-cart-chip chip-more">+{cart.length - 3} more</div>
-              )}
             </div>
           </div>
           <div className="floating-cart-bar-right">

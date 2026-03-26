@@ -628,12 +628,12 @@ const Products = ({ products, onUpdate }) => {
 
                   {/* Expiry Badge Overlay */}
                   {isExpired && (
-                    <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#dc2626', color: 'white', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', zIndex: 5, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+                    <div style={{ position: 'absolute', top: '48px', right: '10px', background: '#dc2626', color: 'white', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', zIndex: 5, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
                       <i className="fas fa-biohazard" style={{ marginRight: '4px' }}></i> EXPIRED
                     </div>
                   )}
                   {isExpiringSoon && !isExpired && (
-                    <div style={{ position: 'absolute', top: '10px', right: '10px', background: '#f97316', color: 'white', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', zIndex: 5, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
+                    <div style={{ position: 'absolute', top: '48px', right: '10px', background: '#f97316', color: 'white', padding: '4px 8px', borderRadius: '6px', fontSize: '11px', fontWeight: 'bold', zIndex: 5, boxShadow: '0 2px 4px rgba(0,0,0,0.2)' }}>
                       <i className="fas fa-clock" style={{ marginRight: '4px' }}></i> EXPIRING SOON
                     </div>
                   )}

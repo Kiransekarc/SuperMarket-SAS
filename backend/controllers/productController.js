@@ -19,7 +19,6 @@ exports.addProduct = async (req, res) => {
       imageUrl,
       discountType,
       discountValue,
-      discountValue,
       discountStartDate,
       discountEndDate,
       expiryDate

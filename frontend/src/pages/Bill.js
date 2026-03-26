@@ -325,9 +325,9 @@ const Bill = () => {
                   <i className="fas fa-shopping-basket"></i>
                 </div>
                 <h2 className="company-name">SUPERMARKET SAS</h2>
-                <p className="company-address">123 Commerce Blvd, Tech City, TX 75001</p>
-                <p className="company-address">Email: support@supermarketsas.com</p>
-                <p className="company-address">Phone: 1-800-SUPERMARKET</p>
+                <p className="company-address">Perundurai, Erode, Tamil Nadu</p>
+                <p className="company-address">Email: supermarketsas@gmail.com</p>
+                <p className="company-address">Phone: +91 9025720030</p>
               </div>
 
               <div className="bill-meta">

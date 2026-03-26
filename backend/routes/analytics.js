@@ -12,9 +12,11 @@ router.get("/", verifyToken, async (req, res) => {
     // Build match stage for date filtering
     let matchStage = {};
     if (startDate && endDate) {
+      const end = new Date(endDate);
+      end.setHours(23, 59, 59, 999);
       matchStage.date = {
         $gte: new Date(startDate),
-        $lte: new Date(endDate)
+        $lte: end
       };
     }
 

@@ -56,6 +56,11 @@ const CustomerStore = () => {
   const [sortBy, setSortBy] = useState("default");
   const [showDeals, setShowDeals] = useState(false);
   const [showCategories, setShowCategories] = useState(true);
+  const [showArrivals, setShowArrivals] = useState(true);
+  const [shoppingList, setShoppingList] = useState([]);
+  const [isSubscribed, setIsSubscribed] = useState(false);
+  const [email, setEmail] = useState("");
+  const [showListModal, setShowListModal] = useState(false);
   const searchRef = useRef(null);
   const bannerTimer = useRef(null);
 
@@ -91,6 +96,25 @@ const CustomerStore = () => {
   };
 
   const pct = (p, d) => p.discountType === "percentage" ? p.discountValue : Math.round((p.price - d) / p.price * 100);
+
+  const toggleToList = (e, p) => {
+    e.stopPropagation();
+    if (shoppingList.find(x => x._id === p._id)) {
+      setShoppingList(shoppingList.filter(x => x._id !== p._id));
+    } else {
+      setShoppingList([...shoppingList, p]);
+    }
+  };
+
+  const handleSubscribe = (e) => {
+    e.preventDefault();
+    if (!email) return;
+    setIsSubscribed(true);
+    setTimeout(() => {
+      setIsSubscribed(false);
+      setEmail("");
+    }, 3000);
+  };
 
   const categories = ["All", ...Array.from(new Set(products.map(p => p.category).filter(Boolean))).sort()];
   const offers = products.filter(p => disc(p) !== null);
@@ -234,6 +258,51 @@ const CustomerStore = () => {
           </section>
         )}
 
+        {/* ── New Arrivals ── */}
+        {products.length > 0 && (
+          <section className="cs-section">
+            <div className="cs-section-hd deal-hd">
+              <h2>
+                <i className="fas fa-star" style={{ color: "#8b5cf6" }}></i> New Arrivals 
+                <span className="cs-hd-badge" style={{ background: "#ede9fe", color: "#8b5cf6" }}>{Math.min(products.length, 8)} new</span>
+              </h2>
+              <button 
+                className={`cs-deals-toggle`} 
+                style={showArrivals ? { background: '#8b5cf6', borderColor: '#8b5cf6', color: 'white' } : {}}
+                onClick={() => setShowArrivals(v => !v)}
+              >
+                {showArrivals ? <><i className="fas fa-chevron-up"></i> Hide</> : <><i className="fas fa-eye"></i> Show Arrivals</>}
+              </button>
+            </div>
+            {showArrivals && (
+              <div className="cs-deals-row">
+              {products.slice(-8).reverse().map(p => {
+                const d = disc(p); const has = d !== null;
+                return (
+                  <div key={p._id} className="cs-deal-card" onClick={() => setSelected(p)}>
+                    <div className="cs-deal-img">
+                      {p.imageUrl ? <img src={p.imageUrl} alt={p.name} onError={e => e.target.style.display="none"} /> : <i className="fas fa-box"></i>}
+                    </div>
+                    <div className="cs-deal-body">
+                      <p className="cs-deal-name">{p.name}</p>
+                      <div className="cs-deal-prices">
+                        <span className="cs-deal-new">₹{has ? d.toFixed(0) : p.price.toFixed(0)}</span>
+                      </div>
+                      <button 
+                        className={`cs-add-list-small ${shoppingList.find(x => x._id === p._id) ? "added" : ""}`} 
+                        onClick={(e) => toggleToList(e, p)}
+                      >
+                        <i className={`fas ${shoppingList.find(x => x._id === p._id) ? "fa-check" : "fa-plus"}`}></i>
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+              </div>
+            )}
+          </section>
+        )}
+
         {/* ── Shop by Category ── */}
         <section className="cs-section">
           <div className="cs-section-hd">
@@ -321,6 +390,10 @@ const CustomerStore = () => {
                         <i className={`fas ${low ? "fa-exclamation-circle" : "fa-check-circle"}`}></i>
                         {low ? `Only ${p.stock} left` : "In Stock"}
                       </div>
+                      <button className={`cs-add-list-btn ${shoppingList.find(x => x._id === p._id) ? "added" : ""}`} onClick={(e) => toggleToList(e, p)}>
+                        <i className={`fas ${shoppingList.find(x => x._id === p._id) ? "fa-check" : "fa-plus"}`}></i> 
+                        {shoppingList.find(x => x._id === p._id) ? " Added" : " Add to List"}
+                      </button>
                     </div>
                   </div>
                 );
@@ -329,6 +402,29 @@ const CustomerStore = () => {
           )}
         </section>
       </main>
+
+      {/* ══ NEWSLETTER ══ */}
+      <div className="cs-newsletter">
+        <div className="cs-nl-content">
+          <h3><i className="far fa-envelope"></i> Never Miss a Deal!</h3>
+          <p>Join our WhatsApp alerts and newsletter to get weekly fresh arrivals and store-only discounts.</p>
+          <form className="cs-nl-form" onSubmit={handleSubscribe}>
+            <input 
+              type="email" 
+              placeholder="Enter your email address" 
+              value={email}
+              onChange={e => setEmail(e.target.value)}
+              required 
+            />
+            <button 
+              type="submit" 
+              style={isSubscribed ? { background: '#10b981', color: 'white', pointerEvents: 'none' } : {}}
+            >
+              {isSubscribed ? <span><i className="fas fa-check"></i> Subscribed!</span> : "Subscribe"}
+            </button>
+          </form>
+        </div>
+      </div>
 
       {/* ══ FOOTER ══ */}
       <footer className="cs-footer">
@@ -340,9 +436,10 @@ const CustomerStore = () => {
           <div className="cs-footer-cols">
             <div className="cs-footer-col">
               <h4>Store Info</h4>
-              <p><i className="fas fa-map-marker-alt"></i> 123 Commerce Blvd, Tech City</p>
+              <p><i className="fas fa-map-marker-alt"></i> Perundurai, Erode, Tamil Nadu</p>
               <p><i className="fas fa-clock"></i> Open Daily · 7 AM – 10 PM</p>
-              <p><i className="fas fa-phone"></i> 1-800-SUPERMART</p>
+              <p><i className="fas fa-phone"></i> +91 9025720030</p>
+              <p><i className="fas fa-envelope"></i> supermarketsas@gmail.com</p>
             </div>
             <div className="cs-footer-col">
               <h4>Quick Links</h4>
@@ -353,8 +450,10 @@ const CustomerStore = () => {
           </div>
         </div>
         <div className="cs-footer-bottom">
-          <span>© 2025 Supermarket SAS · All prices are in ₹ · Visit us in-store to purchase</span>
-          <a href="/login" className="cs-footer-staff"><i className="fas fa-lock"></i> Staff Portal</a>
+          <div className="cs-footer-bottom-inner">
+            <span>© 2025 Supermarket SAS · All prices are in ₹ · Visit us in-store to purchase</span>
+            <a href="/login" className="cs-footer-staff"><i className="fas fa-lock"></i> Staff Portal</a>
+          </div>
         </div>
       </footer>
 
@@ -390,6 +489,49 @@ const CustomerStore = () => {
           </div>
         );
       })()}
+
+      {/* ══ SHOPPING LIST MODAL ══ */}
+      {showListModal && (
+        <div className="cs-modal-bg" onClick={() => setShowListModal(false)}>
+          <div className="cs-list-modal" onClick={e => e.stopPropagation()}>
+            <div className="cs-list-header">
+              <h2><i className="fas fa-clipboard-list"></i> My Shopping List</h2>
+              <button className="cs-modal-x" style={{position:"relative",top:0,right:0}} onClick={() => setShowListModal(false)}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+            <div className="cs-list-body">
+              {shoppingList.length === 0 ? (
+                <div className="cs-empty-list">Your list is empty. Add items to track what to buy in-store!</div>
+              ) : (
+                shoppingList.map(item => (
+                  <div key={item._id} className="cs-list-item">
+                    <img src={item.imageUrl || ""} alt="" onError={e => e.target.style.display="none"} />
+                    <div className="cs-li-info">
+                      <h4>{item.name}</h4>
+                      <span>₹{(disc(item) || item.price).toFixed(2)}</span>
+                    </div>
+                    <button className="cs-li-del" onClick={(e) => toggleToList(e, item)}><i className="fas fa-trash"></i></button>
+                  </div>
+                ))
+              )}
+            </div>
+            {shoppingList.length > 0 && (
+              <div className="cs-list-footer">
+                <div className="cs-li-total">Total Est: ₹{shoppingList.reduce((sum, item) => sum + (disc(item) || item.price), 0).toFixed(2)}</div>
+                <button className="cs-li-print" onClick={() => window.print()}><i className="fas fa-print"></i> Print List</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ══ FLOATING LIST BTN ══ */}
+      {shoppingList.length > 0 && (
+        <button className="cs-float-list-btn" onClick={() => setShowListModal(true)}>
+          <i className="fas fa-cart-shopping"></i>
+        </button>
+      )}
     </div>
   );
 };
